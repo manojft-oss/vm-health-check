@@ -6,6 +6,9 @@
 
 #Threshold
 CPU_THRESHOLD=4
+MEM_THRESHOLD=10
+DISK_THRESHOLD=20
+
 
 # Function: Check CPU usage
 check_cpu() {
@@ -30,6 +33,12 @@ check_memory() {
     mem_used=$(free -m | awk '/Mem:/ {print $3}')
     mem_percent=$(echo "scale=2; $mem_used / $mem_total * 100" | bc)
     echo "Memory Usage: $mem_used MB / $mem_total MB ($mem_percent%)"
+    if (( $(echo "$mem_percent > $MEM_THRESHOLD" | bc -l) )); then
+       echo
+       printf "\xF0\x9F\x9A\xA8  %s" "$1"
+       echo "  Alert: MEM usage is high"
+    fi
+
     echo
 }
 
@@ -37,6 +46,21 @@ check_memory() {
 check_disk() {
     echo " Disk Check:"
     df -h / | awk 'NR==2 {print "Disk Usage: "$5" used on "$6" ("$3" of "$2")"}'
+    disk_percentsign=$(df -h / | awk 'NR==2 {print $5}')
+        
+
+
+#    echo "Disk usage with sign is at ${disk_percentsign}"
+    disk_percent=${disk_percentsign%\%}
+#    echo "Disk usage with sign is at ${disk_percent}"
+ 
+#    echo "------------" 
+   if (( $(echo "$disk_percent > $DISK_THRESHOLD" | bc -l) )); then
+       echo
+       printf "\xF0\x9F\x9A\xA8  %s" "$1"
+       echo "  Alert: Disk usage is high"
+    fi
+
     echo
 }
 
