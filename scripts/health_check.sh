@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # -------------------------------
@@ -5,9 +6,21 @@
 # -------------------------------
 
 #Threshold
-CPU_THRESHOLD=4
-MEM_THRESHOLD=10
-DISK_THRESHOLD=20
+CPU_THRESHOLD=70
+MEM_THRESHOLD=600
+DISK_THRESHOLD=60
+DISK_THRESHOLD_HIGH=80
+
+# ANSI color codes
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Unicode symbols
+CHECK='\u2705'       # ✅
+CROSS='\u274C'       # ❌
+EXCLAMATION='\u2757' # ❗
 
 
 # Function: Check CPU usage
@@ -19,7 +32,10 @@ check_cpu() {
     if (( $(echo "$cpu_usage > $CPU_THRESHOLD" | bc -l) )); then
        echo
        printf "\xF0\x9F\x9A\xA8  %s" "$1"
-       echo "  Alert: CPU usage is high"
+#       echo "  Alert: CPU usage is high"
+       echo -e "${YELLOW}${EXCLAMATION} Alert CPU Usage is high ${NC}"
+    else
+	echo -e "${GREEN}${CHECK} CPU Usage is below threshold ${NC}"
     fi
     echo
 
@@ -36,7 +52,10 @@ check_memory() {
     if (( $(echo "$mem_percent > $MEM_THRESHOLD" | bc -l) )); then
        echo
        printf "\xF0\x9F\x9A\xA8  %s" "$1"
-       echo "  Alert: MEM usage is high"
+#       echo "  Alert: MEM usage is high"
+       echo -e "${YELLOW}${EXCLAMATION} Alert Memory Usage is high ${NC}"
+    else
+       echo -e "${GREEN}${CHECK} Memory Usage is below threshold ${NC}"
     fi
 
     echo
@@ -53,15 +72,18 @@ check_disk() {
 #    echo "Disk usage with sign is at ${disk_percentsign}"
     disk_percent=${disk_percentsign%\%}
 #    echo "Disk usage with sign is at ${disk_percent}"
- 
-#    echo "------------" 
-   if (( $(echo "$disk_percent > $DISK_THRESHOLD" | bc -l) )); then
+
+   if (( $(echo "$disk_percent > $DISK_THRESHOLD_HIGH" | bc -l) )); then
        echo
-       printf "\xF0\x9F\x9A\xA8  %s" "$1"
-       echo "  Alert: Disk usage is high"
+       echo -e "${RED}${CROSS} Disk Failure${NC}"
+
+    elif (( $(echo "$disk_percent > $DISK_THRESHOLD" | bc -l) )); then
+        echo -e "${YELLOW}${EXCLAMATION} Alert Disk Usage is high ${NC}"
+    else
+       echo -e "${GREEN}${CHECK} Disk Usage is below threshold ${NC}"
     fi
 
-    echo
+
 }
 
 # Main function
