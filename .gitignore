@@ -1,0 +1,6 @@
+*.log
+.bash_history
+.bashrc
+.profile
+
+
